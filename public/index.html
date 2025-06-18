@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulario</title>
+  <link rel="icon" type="image/png" href="/img/logo.png" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e9eff5;
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    form {
+      background-color: #ffffff;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+      background-color: #fdfdfd;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #007BFF;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    input[type="submit"] {
+      background-color: #007BFF;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Formulario de trabajo</h1>
+
+  <form id="formularioTrabajo">
+    <input type="text" name="empresa" placeholder="Nombre Empresa" required />
+    <input type="date" name="fecha" required />
+    <input type="number" name="ruta" id="ruta" placeholder="N° Ruta" required readonly />
+    <input type="number" name="puntos" placeholder="Cantidad de Puntos" required />
+    <input type="number" name="positivas" placeholder="Entregas Positivas" required />
+    <input type="number" name="negativas" placeholder="Entregas Negativas" required />
+
+    <!-- Select de Peoneta -->
+    <select name="peoneta" required>
+      <option value="">Seleccione Peoneta</option>
+      <option value="Danilo Lieva">Danilo Leiva</option>
+      <option value="Ignacio Leiva">Ignacio Leiva</option>
+      <option value="Nicolás Rojas">Nicolás Rojas</option>
+      <option value="Constanza Leiva">Constanza Leiva</option>
+      <option value="Bastián Rojas">Bastián Rojas</option>
+      <option value="Martin Rojas">Martin Rojas</option>
+    </select>
+
+    <textarea name="observaciones" rows="4" placeholder="Observaciones"></textarea>
+    <input type="submit" value="Enviar" />
+  </form>
+
+  <script>
+    // Inicializar contador desde localStorage o comenzar en 1
+    let rutaCounter = parseInt(localStorage.getItem('rutaCounter')) || 14;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const rutaInput = document.getElementById('ruta');
+      rutaInput.value = rutaCounter;
+      rutaInput.readOnly = true;
+    });
+
+    document.getElementById("formularioTrabajo").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const puntos = parseInt(this.puntos.value) || 0;
+      const positivas = parseInt(this.positivas.value) || 0;
+      const negativas = parseInt(this.negativas.value) || 0;
+
+      if (positivas + negativas > puntos) {
+        alert("La suma de entregas positivas y negativas no puede ser mayor que la cantidad de puntos.");
+        return;
+      }
+
+      const datos = {
+        empresa: this.empresa.value,
+        fecha: this.fecha.value,
+        ruta: this.ruta.value,
+        puntos: this.puntos.value,
+        positivas: this.positivas.value,
+        negativas: this.negativas.value,
+        peoneta: this.peoneta.value,
+        observaciones: this.observaciones.value
+      };
+
+      fetch("https://formulario-server-asm5.onrender.com/api/guardar", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datos)
+      })
+        .then(response => {
+          alert("Formulario enviado correctamente. 😎👍");
+          this.reset();
+
+          // Incrementar el contador y actualizar el input y localStorage
+          rutaCounter++;
+          localStorage.setItem('rutaCounter', rutaCounter);
+          document.getElementById('ruta').value = rutaCounter;
+        })
+        .catch(error => {
+          alert("Error al enviar.");
+          console.error(error);
+        });
+    });
+  </script>
+</body>
+
+</html>
